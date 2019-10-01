@@ -7,7 +7,7 @@
   "private": true,
   "scripts": {
     "start:local": "cross-env NODE_ENV=local nodemon src/routes.js",
-    "start": "nodemon src/routes.js",
+    "start": "node src/routes.js",
     "test": "jest -c jest.config.json",
     "docs": "node bin/generate-docs.js"
   },
@@ -17,9 +17,11 @@
     "dotenv": "^8.0.0",
     "escape-regex-string": "^1.0.6",
     "express": "^4.16.3",
+    "express-pino-logger": "^4.0.0",
     "multer": "^1.4.2",
     "nedb": "^1.8.0",
     "pg": "^7.11.0",
+    "pino": "^5.13.4",
     "swagger-jsdoc": "^3.3.0",
     "swagger-ui-express": "^4.0.7"
   },

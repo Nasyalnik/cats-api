@@ -12,7 +12,7 @@ function searchCatsByParams(req, res) {
     gender: req.body.gender,
   }
 
-  console.log(
+  req.log.info(
     `searching for cats with name like ${searchParams.name} and ${searchParams.gender}`
   )
 
@@ -35,7 +35,7 @@ function getAllCats(req, res) {
   const { order, gender } = req.query
   const reverseSort = (order || 'asc').toLowerCase() === 'desc'
 
-  console.log(`getting all cats with order = ${order} and gender = ${gender}`)
+  req.log.info(`getting all cats with order = ${order} and gender = ${gender}`)
 
   catsStorage
     .allCats(gender)
@@ -51,7 +51,7 @@ function getAllCats(req, res) {
  */
 function searchCatsByNamePattern(req, res) {
   const { name, limit } = req.query
-  console.log(`searching for cats with name like ${name} limit ${limit}`)
+  req.log.info(`searching for cats with name like ${name} limit ${limit}`)
 
   return validateName(name)
     .then(() => catsStorage.findCatByNamePattern(name, Number(limit)))
@@ -69,7 +69,7 @@ function searchCatsByNamePattern(req, res) {
 function addCats(req, res) {
   const { cats } = req.body
 
-  console.log(`adding cats: ${JSON.stringify(cats)}`)
+  req.log.info(`adding cats: ${JSON.stringify(cats)}`)
 
   if (isEmpty(cats)) {
     return res.status(400).json(boom.badRequest('cats is absent'))
@@ -103,7 +103,7 @@ function addCats(req, res) {
 function saveCatDescription(req, res) {
   const { catId, catDescription } = req.body
 
-  console.log(`saving cat description: ${catId}: ${catDescription}`)
+  req.log.info(`saving cat description: ${catId}: ${catDescription}`)
 
   if (isEmpty(catId) || isEmpty(catDescription)) {
     return res.status(400).json(boom.badRequest('cat id is absent'))

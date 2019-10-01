@@ -1,5 +1,6 @@
 const { Pool } = require('pg')
 const { pgUser, pgPass, pgDb, pgHost } = require('./configs.js')
+const { pino } = require('./routes')
 
 const pool = new Pool({
   user: pgUser,
@@ -56,7 +57,8 @@ function findCatsByParams(searchParams) {
   const catName = searchParams.name
   const genderFilter = searchParams.gender ? ` AND gender = '${searchParams.gender}'` : ''
 
-  console.log(searchParams.gender)
+  pino.info(`searching cats by gender: ${searchParams.gender}`)
+
   return pool
     .query(
       `SELECT * FROM Cats WHERE name ILIKE $1${genderFilter}`,
