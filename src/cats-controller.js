@@ -124,6 +124,8 @@ function saveCatData(req, res) {
 
   req.log.info(`saving cat data: ${catId}: ${catDescription}: ${catColor}: ${catCharacter}`)
 
+  catsStorage.deleteCatCharacter(catId)
+
   const promises = [];
 
   if(!isEmpty(catDescription)) {
@@ -131,16 +133,19 @@ function saveCatData(req, res) {
   }
 
   if(!isEmpty(catColor)) {
+    promises.push(catsStorage.deleteCatColor(catId))
     promises.push(catsStorage.saveCatColor(catId, catColor));
   }
 
   if(!isEmpty(catCharacter)) {
+    promises.push(catsStorage.deleteCatCharacter(catId))
     promises.push(catsStorage.saveCatCharacter(catId, catCharacter));
   }
 
   if (isEmpty(promises)) {
     return res.status(404).json(boom.notFound('no arguments'))
   }
+
   return Promise.all(promises)
     .then(([catFound]) => {
       if (catFound == null) {

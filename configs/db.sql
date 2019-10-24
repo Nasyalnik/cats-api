@@ -80,14 +80,12 @@ create unique index cats_colors_color_uindex
 
 create table characters_ids
 (
-    id_cat       integer not null
-        constraint characters_ids_id_cat_fkey
+    id_cat integer not null
+        constraint characters_ids_cats_id_fk
             references cats,
     id_character integer not null
-        constraint characters_ids_id_character_fkey
-            references cats_characters,
-    constraint id
-        primary key (id_cat, id_character)
+        constraint characters_ids_cats_characters_id_fk
+            references cats_characters
 );
 
 alter table characters_ids

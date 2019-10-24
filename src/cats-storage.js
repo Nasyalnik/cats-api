@@ -104,8 +104,6 @@ function findCatByNamePattern(catName, limit) {
  * Сохранение описания кота в БД
  * @param {*} catId - идентификатор кота, отправленный клиентом
  * @param {*} catDescription - описание кота
- * @param {*} catColor - цвет кота
- * @param {*} catCharacter - характер кота
  */
 function saveCatDescription(catId, catDescription) {
   return pool
@@ -256,10 +254,53 @@ function getCatsCharacters() {
     .then(selectResult => selectResult.rows)
 }
 
+/**
+ * Сохранение окраса кота в БД
+ * @param {*} catId - идентификатор кота, отправленный клиентом
+ * @param {*} id_color - идентификатор окраса
+ */
 function saveCatColor(catId, id_color) {
   return pool
-    .query('UPDATE colors_ids SET id_color = $1 WHERE id_cat = $2 RETURNING *', [
+    .query('INSERT INTO colors_ids (id_cat, id_color) VALUES ($1, $2)', [
+      catId,
       id_color,
+    ])
+    .then(updateResult => {
+      if (updateResult.rows.length == 0) {
+        return null
+      }
+
+      return updateResult.rows[0]
+    })
+}
+
+/**
+ * Сохранение характера кота в БД
+ * @param {*} catId - идентификатор кота, отправленный клиентом
+ * @param {*} id_character - идентификатор характера
+ */
+function saveCatCharacter(catId, id_character) {
+  return pool
+    .query('INSERT INTO characters_ids (id_cat, id_character) VALUES ($1, $2)', [
+      catId,
+      id_character,
+    ])
+    .then(updateResult => {
+      if (updateResult.rows.length == 0) {
+        return null
+      }
+
+      return updateResult.rows[0]
+    })
+}
+
+/**
+ * Удаление цвета кота
+ * @param {*} catId - идентификатор кота, отправленный клиентом
+ */
+function deleteCatColor(catId) {
+  return pool
+    .query('DELETE FROM colors_ids WHERE id_cat = $1', [
       catId,
     ])
     .then(updateResult => {
@@ -271,10 +312,13 @@ function saveCatColor(catId, id_color) {
     })
 }
 
-function saveCatCharacter(catId, id_character) {
+/**
+ * Удаление характера кота
+ * @param {*} catId - идентификатор кота, отправленный клиентом
+ */
+function deleteCatCharacter(catId) {
   return pool
-    .query('UPDATE characters_ids SET id_character = $1 WHERE id_cat = $2 RETURNING *', [
-      id_character,
+    .query('DELETE FROM characters_ids WHERE id_cat = $1', [
       catId,
     ])
     .then(updateResult => {
@@ -309,4 +353,6 @@ module.exports = {
   getCatsColors,
   saveCatColor,
   saveCatCharacter,
+  deleteCatColor,
+  deleteCatCharacter,
 }
