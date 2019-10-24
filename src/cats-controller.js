@@ -13,7 +13,7 @@ function searchCatsByParams(req, res) {
   }
 
   req.log.info(
-    `searching for cats with name like ${searchParams.name} and ${searchParams.gender}`
+    `searching for cats with name like ${searchParams.name} and ${searchParams.gender}`,
   )
 
   return validateName(searchParams.name)
@@ -22,7 +22,7 @@ function searchCatsByParams(req, res) {
       return res.json(groupNamesAndSort(foundCats))
     })
     .catch(err =>
-      res.status(500).json(boom.internal('unable to find cats', err.stack || err.message))
+      res.status(500).json(boom.internal('unable to find cats', err.stack || err.message)),
     )
 }
 
@@ -41,9 +41,10 @@ function getAllCats(req, res) {
     .allCats(gender)
     .then(storedCats => res.json(groupNamesAndSort(storedCats, reverseSort)))
     .catch(err =>
-      res.status(500).json(boom.internal('unable to get all cats', err.stack || err.message))
+      res.status(500).json(boom.internal('unable to get all cats', err.stack || err.message)),
     )
 }
+
 /**
  * Поиск списка котов для списка подсказок
  * @param {*} req  - поисковый запрос и лимит на количество имен, возращаемых в ответе
@@ -57,7 +58,7 @@ function searchCatsByNamePattern(req, res) {
     .then(() => catsStorage.findCatByNamePattern(name, Number(limit)))
     .then(foundCats => res.json(foundCats))
     .catch(err =>
-      res.status(500).json(boom.internal('unable to find cats', err.stack || err.message))
+      res.status(500).json(boom.internal('unable to find cats', err.stack || err.message)),
     )
 }
 
@@ -85,7 +86,7 @@ function addCats(req, res) {
     return res.status(400).json(boom.badRequest(validError))
   }
 
-  const catsNames = cats.map(({name}) => name)
+  const catsNames = cats.map(({ name }) => name)
 
   Promise.all(cats.map(cat => validateAddingNames(catsNames)))
     .catch(err => {
@@ -97,7 +98,7 @@ function addCats(req, res) {
     .then(storedCats =>
       res.json({
         cats: storedCats,
-      })
+      }),
     )
     .catch(err => {
       const textError = catsStorage.getErrorText(err.code)
@@ -114,7 +115,7 @@ function addCats(req, res) {
 }
 
 /**
- * Сохранение описание кота в БД
+ * Сохранение параметров кота в БД
  * @param {*} req
  * @param {*} res
  */
@@ -137,7 +138,7 @@ function saveCatDescription(req, res) {
       return res.json({ cat: catFound })
     })
     .catch(err =>
-      res.status(500).json(boom.internal('unable to save cat description', err.stack || err.message))
+      res.status(500).json(boom.internal('unable to save cat description', err.stack || err.message)),
     )
 }
 
@@ -157,7 +158,7 @@ function getCatById(req, res) {
       return res.json({ cat: catFound })
     })
     .catch(err =>
-      res.status(500).json(boom.internal('unable to find cat', err.stack || err.message))
+      res.status(500).json(boom.internal('unable to find cat', err.stack || err.message)),
     )
 }
 
@@ -260,7 +261,7 @@ function getCatValidationRules(req, res) {
     .catch(err =>
       res
         .status(500)
-        .json(boom.internal('unable to find cats validation rules', err.stack || err.message))
+        .json(boom.internal('unable to find cats validation rules', err.stack || err.message)),
     )
 }
 
@@ -293,7 +294,7 @@ function validateName(name) {
 function validateAddingNames(names) {
   return catsStorage.findAddingCatsValidationRules().then(validationRules => {
     names.forEach(name => {
-      validationRules.forEach(({description, regex}) => {
+      validationRules.forEach(({ description, regex }) => {
         const validationRegex = new RegExp(regex)
 
         if (name.search(validationRegex) === -1) {
@@ -307,7 +308,8 @@ function validateAddingNames(names) {
   })
 }
 
-function deleteCatByName(req, res) {}
+function deleteCatByName(req, res) {
+}
 
 /**
  * Добавление изображения коту
@@ -343,7 +345,7 @@ function getCatImages(req, res) {
       return res.json({ images: images })
     })
     .catch(err =>
-      res.status(500).json(boom.internal('unable to find image', err.stack || err.message))
+      res.status(500).json(boom.internal('unable to find image', err.stack || err.message)),
     )
 }
 
@@ -452,7 +454,7 @@ function deleteDislike(req, res) {
 function getLikesRating(req, res) {
   catsStorage.getLikesRating()
     .then(data => {
-      res.status(200).json(data.rows);
+      res.status(200).json(data.rows)
     })
     .catch(err => {
       res.status(500).json(boom.internal('Error get likes rating', err.stack || err.message))
@@ -474,6 +476,28 @@ function getDislikesRating(req, res) {
     })
 }
 
+/**
+ * Получение всех окрасов и характеров
+ * @param req
+ * @param res
+ */
+function getCatsColorsAndCharacters(req, res) {
+
+  return Promise.all([
+    catsStorage.getCatsColors(),
+    catsStorage.getCatsCharacters()
+  ])
+    .then(([colors, characters]) => {
+      res.status(200).json({
+        colors,
+        characters,
+      })
+    })
+    .catch(err => {
+      res.status(500).json(boom.internal('Error get colors and characters', err.stack || err.message))
+    })
+}
+
 module.exports = {
   searchCatsByParams,
   searchCatsByNamePattern,
@@ -492,4 +516,5 @@ module.exports = {
   deleteDislike,
   getLikesRating,
   getDislikesRating,
+  getCatsColorsAndCharacters,
 }

@@ -51,3 +51,57 @@ INSERT INTO Cats_Validations (description, regex, type) VALUES
     ('Цифры не принимаются!', '^\D*$', 'add'),
     ('Из спецсимволов можно только тире и только посередине имени', '^([\d\wа-яА-Я]+[-\s]?[\d\wа-яА-Я]+)$', 'add'),
     ('Только имена на русском!', '^[а-яА-Я\s-]*$', 'add');
+
+-- Feature 4 colors and characters
+create table cats_characters
+(
+    id        serial  not null
+        constraint cats_characters_pk
+            primary key,
+    character varchar not null
+);
+
+alter table cats_characters
+    owner to cats;
+
+create table cats_colors
+(
+    id    serial not null
+        constraint cats_colors_pk
+            primary key,
+    color varchar
+);
+
+alter table cats_colors
+    owner to cats;
+
+create unique index cats_colors_color_uindex
+    on cats_colors (color);
+
+create table characters_ids
+(
+    id_cat       integer not null
+        constraint characters_ids_id_cat_fkey
+            references cats,
+    id_character integer not null
+        constraint characters_ids_id_character_fkey
+            references cats_characters,
+    constraint id
+        primary key (id_cat, id_character)
+);
+
+alter table characters_ids
+    owner to cats;
+
+create table colors_ids
+(
+    id_cat   integer not null
+        constraint colors_ids_cats_id_fk
+            references cats,
+    id_color integer not null
+        constraint colors_ids_cats_colors_id_fk
+            references cats_colors
+);
+
+alter table colors_ids
+    owner to cats;

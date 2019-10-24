@@ -104,6 +104,8 @@ function findCatByNamePattern(catName, limit) {
  * Сохранение описания кота в БД
  * @param {*} catId - идентификатор кота, отправленный клиентом
  * @param {*} catDescription - описание кота
+ * @param {*} catColor - цвет кота
+ * @param {*} catCharacter - характер кота
  */
 function saveCatDescription(catId, catDescription) {
   return pool
@@ -236,6 +238,23 @@ function getErrorText(errCode) {
   }
 }
 
+/**
+ * Получение всех окрасов
+ */
+function getCatsColors() {
+  return pool
+    .query('SELECT * FROM cats_colors')
+    .then(selectResult => selectResult.rows)
+}
+
+/**
+ * Получение всех характеров
+ */
+function getCatsCharacters() {
+  return pool
+    .query('SELECT * FROM cats_characters')
+    .then(selectResult => selectResult.rows)
+}
 
 module.exports = {
   addCats,
@@ -255,4 +274,6 @@ module.exports = {
   getLikesRating,
   getDislikesRating,
   getErrorText,
+  getCatsCharacters,
+  getCatsColors,
 }

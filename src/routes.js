@@ -20,6 +20,7 @@ const {
   deleteDislike,
   getLikesRating,
   getDislikesRating,
+  getCatsColorsAndCharacters,
 } = require('./cats-controller')
 const { swaggerSpec } = require('./swagger-controller')
 const { serverPort } = require('./configs')
@@ -541,6 +542,8 @@ app.get('/cats/likes-rating', getLikesRating)
  *                     require: true
  */
 app.get('/cats/dislikes-rating', getDislikesRating)
+app.get('/cats/get_characteristics', getCatsColorsAndCharacters)
+
 
 app.delete('/cats/delete-by-name', deleteCatByName)
 app.use('/api-docs-ui', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
