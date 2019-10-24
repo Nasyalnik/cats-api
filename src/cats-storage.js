@@ -256,6 +256,37 @@ function getCatsCharacters() {
     .then(selectResult => selectResult.rows)
 }
 
+function saveCatColor(catId, id_color) {
+  return pool
+    .query('UPDATE colors_ids SET id_color = $1 WHERE id_cat = $2 RETURNING *', [
+      id_color,
+      catId,
+    ])
+    .then(updateResult => {
+      if (updateResult.rows.length == 0) {
+        return null
+      }
+
+      return updateResult.rows[0]
+    })
+}
+
+function saveCatCharacter(catId, id_character) {
+  return pool
+    .query('UPDATE characters_ids SET id_character = $1 WHERE id_cat = $2 RETURNING *', [
+      id_character,
+      catId,
+    ])
+    .then(updateResult => {
+      if (updateResult.rows.length == 0) {
+        return null
+      }
+
+      return updateResult.rows[0]
+    })
+}
+
+
 module.exports = {
   addCats,
   findCatsByParams,
@@ -276,4 +307,6 @@ module.exports = {
   getErrorText,
   getCatsCharacters,
   getCatsColors,
+  saveCatColor,
+  saveCatCharacter,
 }

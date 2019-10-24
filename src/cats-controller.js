@@ -119,18 +119,30 @@ function addCats(req, res) {
  * @param {*} req
  * @param {*} res
  */
-function saveCatDescription(req, res) {
-  const { catId, catDescription } = req.body
+function saveCatData(req, res) {
+  const { catId, catDescription, catColor, catCharacter } = req.body
 
-  req.log.info(`saving cat description: ${catId}: ${catDescription}`)
+  req.log.info(`saving cat data: ${catId}: ${catDescription}: ${catColor}: ${catCharacter}`)
 
-  if (isEmpty(catId) || isEmpty(catDescription)) {
-    return res.status(400).json(boom.badRequest('cat id is absent'))
+  const promises = [];
+
+  if(!isEmpty(catDescription)) {
+    promises.push(catsStorage.saveCatDescription(catId, catDescription));
   }
 
-  catsStorage
-    .saveCatDescription(catId, catDescription)
-    .then(catFound => {
+  if(!isEmpty(catColor)) {
+    promises.push(catsStorage.saveCatColor(catId, catColor));
+  }
+
+  if(!isEmpty(catCharacter)) {
+    promises.push(catsStorage.saveCatCharacter(catId, catCharacter));
+  }
+
+  if (isEmpty(promises)) {
+    return res.status(404).json(boom.notFound('no arguments'))
+  }
+  return Promise.all(promises)
+    .then(([catFound]) => {
       if (catFound == null) {
         return res.status(404).json(boom.notFound('cat not found'))
       }
@@ -504,7 +516,7 @@ module.exports = {
   addCats,
   deleteCatByName,
   getCatById,
-  saveCatDescription,
+  saveCatData,
   getCatValidationRules,
   uploadCatImage,
   getCatImages,

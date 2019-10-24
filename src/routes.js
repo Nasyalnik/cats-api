@@ -8,7 +8,7 @@ const {
   getCatById,
   searchCatsByParams,
   searchCatsByNamePattern,
-  saveCatDescription,
+  saveCatData,
   getCatValidationRules,
   uploadCatImage,
   getCatImages,
@@ -230,13 +230,13 @@ app.get('/cats/search-pattern', searchCatsByNamePattern)
 /**
  * @swagger
  *
- * /cats/save-description:
+ * /cats/save-data:
  *   post:
- *     description: Сохранение описания имени
+ *     description: Сохранение даных кота
  *     produces:
  *       - application/json
  *     requestBody:
- *       description: Фильтр поиска имени
+ *       description: Сохранение даных кота
  *       required: true
  *       content:
  *         application/json:
@@ -251,16 +251,24 @@ app.get('/cats/search-pattern', searchCatsByNamePattern)
  *                 description: Описание имени
  *                 type: string
  *                 required: true
+ *               catColor:
+ *                 description: цвет кота
+ *                 type: number
+ *                 required: false
+ *               catCharacter:
+ *                 description: характер кота
+ *                 type: number
+ *                 required: false
  *     responses:
  *       200:
- *         description: Имена по группам алфавита с их количеством
+ *         description: Данные по коту
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/definitions/Cat'
  *
  */
-app.post('/cats/save-description', saveCatDescription)
+app.post('/cats/save-data', saveCatData)
 
 /**
  * @swagger
