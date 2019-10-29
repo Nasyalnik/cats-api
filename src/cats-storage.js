@@ -48,7 +48,6 @@ function allCats(gender) {
     .then(selectResult => selectResult.rows)
 }
 
-
 /**
  * Поиск котов по указанным параметрам в БД
  * @param {*} searchParams - список параметров для поиска, переданные от клиента (имя, пол (м,ж, унисекс))
@@ -261,14 +260,14 @@ function getCatsCharacters() {
  */
 function saveCatColor(catId, id_color) {
   return pool
-    .query('INSERT INTO colors_ids (id_cat, id_color) VALUES ($1, $2)', [
+    .query('INSERT INTO colors_ids (id_cat, id_color) VALUES ($1, $2) RETURNING *', [
       catId,
       id_color,
     ])
     .then(updateResult => {
-      if (updateResult.rows.length == 0) {
-        return null
-      }
+      // if (updateResult.rows.length == 0) {
+      //   return null
+      // }
 
       return updateResult.rows[0]
     })
@@ -279,19 +278,19 @@ function saveCatColor(catId, id_color) {
  * @param {*} catId - идентификатор кота, отправленный клиентом
  * @param {*} id_character - идентификатор характера
  */
-function saveCatCharacter(catId, id_character) {
-  return pool
-    .query('INSERT INTO characters_ids (id_cat, id_character) VALUES ($1, $2)', [
-      catId,
-      id_character,
-    ])
-    .then(updateResult => {
-      if (updateResult.rows.length == 0) {
-        return null
-      }
+function saveCatCharacter(catId, id_character)
+{
+    let result = []
+    const query = 'INSERT INTO characters_ids (id_cat, id_character) VALUES '
 
-      return updateResult.rows[0]
-    })
+  for(let i = 0; i < id_character.length; i++) {
+    result.push('($1, ' + '$' + String(i + 2) + ')')
+    }
+
+      return pool.query(
+        query + result.join(','),
+        [catId, ...id_character]
+      )
 }
 
 /**
@@ -303,13 +302,7 @@ function deleteCatColor(catId) {
     .query('DELETE FROM colors_ids WHERE id_cat = $1', [
       catId,
     ])
-    .then(updateResult => {
-      if (updateResult.rows.length == 0) {
-        return null
-      }
-
-      return updateResult.rows[0]
-    })
+    .then(() => {})
 }
 
 /**
@@ -321,13 +314,7 @@ function deleteCatCharacter(catId) {
     .query('DELETE FROM characters_ids WHERE id_cat = $1', [
       catId,
     ])
-    .then(updateResult => {
-      if (updateResult.rows.length == 0) {
-        return null
-      }
-
-      return updateResult.rows[0]
-    })
+    .then(() => {})
 }
 
 

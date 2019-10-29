@@ -124,29 +124,30 @@ function saveCatData(req, res) {
 
   req.log.info(`saving cat data: ${catId}: ${catDescription}: ${catColor}: ${catCharacter}`)
 
-  catsStorage.deleteCatCharacter(catId)
-
-  const promises = [];
+  const first_promises = [];
+  const second_promises = [];
 
   if(!isEmpty(catDescription)) {
-    promises.push(catsStorage.saveCatDescription(catId, catDescription));
+    first_promises.push(catsStorage.saveCatDescription(catId, catDescription));
   }
 
   if(!isEmpty(catColor)) {
-    promises.push(catsStorage.deleteCatColor(catId))
-    promises.push(catsStorage.saveCatColor(catId, catColor));
+    first_promises.push(catsStorage.deleteCatColor(catId))
+    second_promises.push(catsStorage.saveCatColor(catId, catColor));
   }
 
   if(!isEmpty(catCharacter)) {
-    promises.push(catsStorage.deleteCatCharacter(catId))
-    promises.push(catsStorage.saveCatCharacter(catId, catCharacter));
+    first_promises.push(catsStorage.deleteCatCharacter(catId))
+    second_promises.push(catsStorage.saveCatCharacter(catId, catCharacter));
   }
 
-  if (isEmpty(promises)) {
+  if (isEmpty(first_promises)) {
     return res.status(404).json(boom.notFound('no arguments'))
   }
 
-  return Promise.all(promises)
+
+  return Promise.all(first_promises)
+    .then(() => Promise.all(second_promises) )
     .then(([catFound]) => {
       if (catFound == null) {
         return res.status(404).json(boom.notFound('cat not found'))
@@ -155,7 +156,7 @@ function saveCatData(req, res) {
       return res.json({ cat: catFound })
     })
     .catch(err =>
-      res.status(500).json(boom.internal('unable to save cat description', err.stack || err.message)),
+      res.status(500).json(boom.internal('unable to save cat data', err.stack || err.message)),
     )
 }
 
