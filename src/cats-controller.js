@@ -130,7 +130,7 @@ function saveCatDescription(req, res) {
 
   req.log.info(`saving cat description: ${catId}: ${catDescription}`)
 
-  if (isEmpty(catId) || isEmpty(catDescription)) {
+  if (isEmpty(catId)) {
     return res.status(400).json(boom.badRequest('cat id is absent'))
   }
 
