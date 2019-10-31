@@ -48,6 +48,10 @@ CREATE TYPE Validation_Type AS ENUM ('search', 'add');
 ALTER TABLE Cats_Validations ADD COLUMN type Validation_Type NOT NULL DEFAULT 'search';
 
 INSERT INTO Cats_Validations (description, regex, type) VALUES
+    ('Цифры не принимаются!', '^\D*$', 'search'),
+    ('Только имена на русском!', '^[а-яА-Я\s-]*$', 'search'),
+    ('Из спецсимволов можно только тире и только посередине имени', '^([\d\wа-яА-Я]+[-\s]?[\d\wа-яА-Я]+)$', 'search'),
     ('Цифры не принимаются!', '^\D*$', 'add'),
+    ('Имя слишком короткое!', '^[а-яА-Я]{0,1}$', 'add'),
     ('Из спецсимволов можно только тире и только посередине имени', '^([\d\wа-яА-Я]+[-\s]?[\d\wа-яА-Я]+)$', 'add'),
     ('Только имена на русском!', '^[а-яА-Я\s-]*$', 'add');
