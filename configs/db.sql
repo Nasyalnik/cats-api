@@ -14,11 +14,6 @@ CREATE TABLE Cats_Validations (
     regex TEXT NOT NULL
 );
 
--- Add name validation rules:
-INSERT INTO Cats_Validations (description, regex) VALUES
-  ('Цифры не принимаются!', '^\D*$'),
-  ('Только имена на русском!', '^[а-яА-Я\s-]*$'),
-  ('Из спецсимволов можно только тире и только посередине имени', '^([\d\wа-яА-Я]+|[\d\wа-яА-Я]+[-\s]|[\d\wа-яА-Я]+[-\s][\d\wа-яА-Я]+)$');
 
 -- Feature 8 upload images:
 CREATE TABLE images (
@@ -47,10 +42,11 @@ ALTER TABLE cats ALTER COLUMN gender SET NOT NULL;
 CREATE TYPE Validation_Type AS ENUM ('search', 'add');
 ALTER TABLE Cats_Validations ADD COLUMN type Validation_Type NOT NULL DEFAULT 'search';
 
+-- Add name validation rules:
 INSERT INTO Cats_Validations (description, regex, type) VALUES
     ('Цифры не принимаются!', '^\D*$', 'search'),
     ('Только имена на русском!', '^[а-яА-Я\s-]*$', 'search'),
-    ('Из спецсимволов можно только тире и только посередине имени', '^([\d\wа-яА-Я]+[-\s]?[\d\wа-яА-Я]+)$', 'search'),
+    ('Из спецсимволов можно только тире и только посередине имени', '^([\d\wа-яА-Я]+|[\d\wа-яА-Я]+[-\s]|[\d\wа-яА-Я]+[-\s][\d\wа-яА-Я]+)$', 'search'),
     ('Цифры не принимаются!', '^\D*$', 'add'),
     ('Имя слишком короткое!', '^[а-яА-Я]{0,1}$', 'add'),
     ('Из спецсимволов можно только тире и только посередине имени', '^([\d\wа-яА-Я]+[-\s]?[\d\wа-яА-Я]+)$', 'add'),
