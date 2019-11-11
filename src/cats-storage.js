@@ -45,8 +45,8 @@ function allCats(gender) {
 
   return pool
     .query(...(gender
-      ? [queryWithGender, [gender]]
-      : [queryAll]
+        ? [queryWithGender, [gender]]
+        : [queryAll]
     ))
     .then(selectResult => selectResult.rows)
 }
@@ -56,17 +56,25 @@ function allCats(gender) {
  * @param {*} searchParams - список параметров для поиска, переданные от клиента (имя, пол (м,ж, унисекс))
  */
 function findCatsByParams(searchParams) {
+  const genderWhitelist = ['male', 'female', 'universal']
   const catName = searchParams.name
-  const genderFilter = searchParams.gender ? ` AND gender = '${searchParams.gender}'` : ''
+  const gender = searchParams.gender
 
-  logger.info(`searching cats by name: ${catName} and gender: ${searchParams.gender}`)
+  if (genderWhitelist.includes(gender)) {
+    const genderFilter = gender ? ` AND gender = '${searchParams.gender}'` : ''
 
-  return pool
-    .query(
-      `SELECT * FROM Cats WHERE name ILIKE $1${genderFilter} ORDER BY LOWER(name)`,
-      [`%${catName}%`],
-    )
-    .then(selectResult => selectResult.rows)
+    logger.info(`searching cats by name: ${catName} and gender: ${searchParams.gender}`)
+
+    return pool
+      .query(
+        `SELECT * FROM Cats WHERE name ILIKE $1${genderFilter} ORDER BY LOWER(name)`,
+        [`%${catName}%`],
+      )
+      .then(selectResult => selectResult.rows)
+
+  } else {
+    console.log('invalid gender value')
+  }
 }
 
 function findCatById(catId) {
@@ -208,7 +216,7 @@ function minusDislike(catId) {
  * @returns {*|query|void|Promise<PermissionStatus>}
  */
 function getLikesRating(limit = 10) {
-  limit = Number(limit) || 10;
+  limit = Number(limit) || 10
 
   return pool.query(`SELECT name, likes FROM cats ORDER BY likes DESC, LOWER(name) LIMIT ${limit}`)
 }
@@ -219,7 +227,7 @@ function getLikesRating(limit = 10) {
  * @returns {*|query|void|Promise<PermissionStatus>}
  */
 function getDislikesRating(limit = 10) {
-  limit = Number(limit) || 10;
+  limit = Number(limit) || 10
 
   return pool.query(`SELECT name, dislikes FROM cats ORDER BY dislikes DESC, LOWER(name) LIMIT ${limit}`)
 }
@@ -232,9 +240,9 @@ function getDislikesRating(limit = 10) {
 function getErrorText(errCode) {
   switch (errCode) {
     case '23505':
-      return `Такое значение уже существует`;
+      return `Такое значение уже существует`
     default:
-      return null;
+      return null
   }
 }
 

@@ -19,6 +19,11 @@ function searchCatsByParams(req, res) {
   return validateName(searchParams.name)
     .then(() => catsStorage.findCatsByParams(searchParams))
     .then(foundCats => {
+
+      if(isEmpty(foundCats)){
+        return res.status(400).json(boom.badRequest('Передано невалидное значение пола'))
+      }
+
       return res.json(groupNamesAndSort(foundCats))
     })
     .catch(err =>
