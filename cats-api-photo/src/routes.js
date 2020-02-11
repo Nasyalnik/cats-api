@@ -4,6 +4,8 @@ const {upload} = require('./multer');
 const {swaggerSpec} = require('./swagger-controller');
 const catsStorage = require('./storage');
 const boom = require('boom');
+const {pool} = require('./storage')
+const {logger} = require('./logger');
 
 const app = express();
 
@@ -11,8 +13,17 @@ function isEmpty(value) {
   return value == null || value.length === 0;
 }
 
-app.get('/', function(req, res) {
-  res.send('Hello World!');
+app.use((err, req, res, next) => {
+  logger.error(err.toString());
+  next();
+});
+
+app.get('/status', (req, res) => {
+  pool.query('SELECT version()')
+    .then((row) => {
+      logger.info({req: req, res: {status: 200, json: row.rows}});
+      return res.status(200).json(row.rows);
+    });
 });
 
 /**
@@ -50,19 +61,24 @@ app.get('/', function(req, res) {
  */
 app.post('/cats/:catId/upload', upload.single('file'), (req, res) => {
   const {catId} = req.params;
-
   if (!req.file) {
-    return res.status(400).json(boom.badRequest('File is required'));
+    const jsonResponse = boom.badRequest('File is required');
+    logger.error({req: req, res: {status: 400, json: jsonResponse}});
+    return res.status(400).json(jsonResponse);
   }
 
   catsStorage
-      .uploadCatImage(req.file.filename, catId)
-      .then(() => res.status(200).json({fileUrl: '/photos/' + req.file.filename}))
-      .catch((err) => {
-        res
-            .status(500)
-            .json(boom.internal('unable to insert db', err.stack || err.message));
-      });
+    .uploadCatImage(req.file.filename, catId)
+    .then(() => {
+      const jsonResponse = {fileUrl: '/photos/' + req.file.filename};
+      logger.info({req: req, res: {status: 200, json: jsonResponse}});
+      return res.status(200).json(jsonResponse);
+    })
+    .catch((err) => {
+      const jsonResponse = boom.internal('unable to insert db', err.stack || err.message);
+      logger.error({req: req, res: {status: 500, json: jsonResponse}});
+      return res.status(500).json(jsonResponse);
+    });
 });
 
 /**
@@ -95,26 +111,38 @@ app.post('/cats/:catId/upload', upload.single('file'), (req, res) => {
  */
 app.get('/cats/:catId/photos', (req, res) => {
   const {catId} = req.params;
-
   if (isEmpty(catId)) {
-    return res.status(400).json(boom.badRequest('Image id is absent'));
+    const jsonResponse = boom.badRequest('Image id is absent');
+    logger.error({req: req, res: {status: 400, json: jsonResponse}});
+    return res.status(400).json(jsonResponse);
   }
 
   catsStorage
-      .getCatImages(catId)
-      .then((imageFound) => {
-        if (imageFound == null) {
-          return res.status(404).json(boom.notFound('Cat or photos not found'));
-        }
-        const images = (imageFound || []).map((obj) => '/photos/' + obj.link);
+    .getCatImages(catId)
+    .then((imageFound) => {
+      if (imageFound == null) {
+        const jsonResponse = boom.notFound('Cat or photos not found');
+        logger.error({req: req, res: {status: 404, json: jsonResponse}});
+        return res.status(404).json(jsonResponse);
+      }
+      const images = (imageFound || []).map((obj) => '/photos/' + obj.link);
 
-        return res.json({images: images});
-      })
-      .catch((err) =>
-        res.status(500).json(boom.internal('unable to find image', err.stack || err.message)),
-      );
+      logger.info({req: req, res: {status: 200, json: {images: images}}});
+      return res.status(200).json({images: images});
+    })
+    .catch((err) =>{
+      const jsonResponse = boom.internal('Unable to find image', err.stack || err.message);
+      logger.error({req: req, res: {status: 500, json: jsonResponse}});
+
+      return res.status(500).json(jsonResponse);
+    });
 });
 
 app.use('/api-docs-ui', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+app.get('*', (req, res)=>{
+  logger.error({req: req, res: {status: 404, message: 'Not found'}});
+  res.status(404).send('Not found');
+});
 
 module.exports=app;
