@@ -32,7 +32,7 @@
     "jest-html-reporter": "^2.4.2",
     "jest-junit": "^6.3.0",
     "nodemon": "^1.18.4",
-    "showdown": "^1.9.0",
+    "showdown": "^1.9.1",
     "supertest": "^3.3.0",
     "tmp": "^0.0.33"
   }
